@@ -1,7 +1,10 @@
 "use strict";
 
 const User = require("../models/User");
+const Subscriber = require("../models/Subscriber")
 const { Op } = require('Sequelize')
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
 
 // TODO
@@ -12,37 +15,36 @@ const { Op } = require('Sequelize')
 
 // CRUD users REGISTER and LOGIN
 
-exports.login = async function (req, res) {
+exports.login = async (req, res) => {
   try {
-    const email = req.body.email;
-    const password = req.body.password;
-
     const user = await User.findOne({
-      where: { email, password }
+      where: { email: req.body.email }
     })
 
-    if (!user || user.length === 0) {
-      return res.status(404).send({
-        status: false,
-        message: "invalid email or password",
-      });
-    }
+    const userId = user.id
+    const name = user.first_name + user.last_name
+    const email = user.email
 
-    res.send({
-      status: true,
-      message: "login success",
-      data: user[0],
-    });
-  } catch (error) {
-    console.log("Program error", error);
-    return res
-    .status(500)
-    .send({
-      status: false,
-      message: error.sqlMessage || "Ada kesalahan server",
-    });
+    const accessToken = jwt.sign({userId, name, email}, `${process.env.ACCESS_TOKEN_SECRET}`, {
+      expiresIn: '20s'
+    })
+    const refreshToken = jwt.sign({userId, name, email}, `${process.env.REFRESH_TOKEN_SECRET}`, {
+      expiresIn: '1d'
+    })
+
+    await User.update({refresh_token: refreshToken}, {
+      where: { id: userId }
+    })
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000
+    })
+    res.json({ accessToken })
+  } catch (err) {
+    console.error("Error", err)
+    res.status(404).json({msg: "Email not found"})
   }
-};
+}
 
 
 exports.users = async function (req, res) {
@@ -72,10 +74,11 @@ exports.users = async function (req, res) {
 exports.findUsers = async function (req, res) {
   const user_id = req.params.user_id;
   try {
-    const findUser = await User.findOne({
+    let findUser = await User.findOne({
       where: {
         [Op.and]: [{ id: user_id }, { deleted: null }]
       }})
+    findUser = JSON.parse(JSON.stringify(findUser))
 
     if (!findUser || findUser.length === 0) {
       return res.status(404).send({
@@ -88,17 +91,17 @@ exports.findUsers = async function (req, res) {
     //   `select follower_id, count(follower_id) as followers from subscribers where follower_id = '${findUser[0].id}' group by follower_id`
     // )
 
-    // const subs = await User.findAll({
+    let subs = await Subscriber.findAll({
+      where: {follower_id: findUser.id}
+    })
+    subs = JSON.parse(JSON.stringify(subs))
 
-    // })
+    // console.log(subs.follower_id)
+    findUser.total_followers = subs.length > 0 ? subs.followers : 0;
 
-    // console.log(subs)
-    // findUser[0].total_followers = subs.length > 0 ? subs[0].followers : 0;
-
-
-    // findUser[0].followers_details = {
-    //   email: findUser[0].email,
-    // }
+    findUser.followers_details = {
+      email: findUser.email,
+    }
 
 
     res.send({

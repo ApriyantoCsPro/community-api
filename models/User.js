@@ -32,6 +32,9 @@ const config = require('../config/config')
         type: Sequelize.STRING,
         allowNull: false
       },
+      refresh_token: {
+        type: Sequelize.TEXT
+      },
       deleted: {
         type: Sequelize.DATE,
         allowNull: true
