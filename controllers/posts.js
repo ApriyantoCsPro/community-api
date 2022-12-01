@@ -9,20 +9,19 @@ const User = require("../models/User");
 
 exports.createPosts = async function (req, res) {
   try {
-    const { user_id, content } = req.body;
+    const { content } = req.body;
 
-    const findId = await Post.findOne({
-      [Op.and]: [{id: user_id}, {deleted: null}] 
-    })
-
-    if (findId.length === 0) {
+    const email = req.email
+    console.log("Email: ", email)
+        
+    if (!email || email.length === 0) {
       return res.status(400).send({
         status: false,
-        message: "user_id tidak ditemukan.",
+        message: "user tidak ditemukan.",
       });
     }
 
-    await Post.create({user_id, content})
+    await Post.create({user_email: email, content})
 
     res.send({
       status: true,

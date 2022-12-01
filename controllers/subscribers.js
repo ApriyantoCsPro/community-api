@@ -1,6 +1,5 @@
 "use strict";
 
-var query = require("../conn");
 const Subscriber = require("../models/Subscriber")
 const User = require("../models/User")
 const {Op} = require("Sequelize")

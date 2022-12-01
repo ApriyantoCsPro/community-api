@@ -3,8 +3,10 @@ const express = require("express")
 
 const router = express.Router()
 const postController = require("../controllers/posts")
+const { verifyToken } = require("../middleware/VerifyToken")
 
-router.post("/", postController.createPosts);
+
+router.post("/", verifyToken, postController.createPosts);
 router.get("/", postController.posts);
 router.get("/:post_id", postController.findPosts);
 router.put("/:post_id", postController.updatePosts);

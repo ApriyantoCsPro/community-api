@@ -25,11 +25,11 @@ exports.login = async (req, res) => {
     const name = user.first_name + user.last_name
     const email = user.email
 
-    const accessToken = jwt.sign({userId, name, email}, `${process.env.ACCESS_TOKEN_SECRET}`, {
-      expiresIn: '20s'
-    })
-    const refreshToken = jwt.sign({userId, name, email}, `${process.env.REFRESH_TOKEN_SECRET}`, {
-      expiresIn: '1d'
+    const accessToken = jwt.sign({userId, name, email}, `${process.env.ACCESS_TOKEN_SECRET}`)
+    const refreshToken = jwt.sign({userId, name, email}, `${process.env.REFRESH_TOKEN_SECRET}`)
+
+    await User.update({access_token: accessToken}, {
+      where: { id: userId }
     })
 
     await User.update({refresh_token: refreshToken}, {
@@ -210,6 +210,33 @@ exports.updateUsers = async function (req, res) {
   }
 };
 
+exports.logout = async(req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken
+    if(!refreshToken) return res.sendStatus(204) //204 is no content
+    const user = await User.findAll({
+      where:{
+        refresh_token: refreshToken
+      }
+    })
+    if(!user[0]) return res.sendStatus(204)
+    const userId = user[0].id    //ambil id user dari database
+    await User.update({refresh_token: null}, {
+      where: {
+        id: userId
+      }
+    })
+    res.clearCookie('refreshToken')
+    return res.sendStatus(200)
+   } catch (error) {
+    console.log("Program error", error);
+    return res.status(500).send({
+      status: false,
+      message: error.sqlMessage || "Ada kesalahan server",
+    });
+  }
+ }
+  
 exports.deleteUsers = async function (req, res) {
   try {
     const { user_id } = req.params;

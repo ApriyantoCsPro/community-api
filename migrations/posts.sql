@@ -1,7 +1,9 @@
-create table posts(
-     id int not null auto_increment,
-     user_id int not null,
-     content varchar(50) not null,
-     primary key(id),
-     constraint fk_posts_users foreign key (user_id) references users(id)
-     )engine = innodb;
+create table posts (
+	id int not null auto_increment,
+    user_email varchar(15) not null,
+    content varchar(100) not null,
+    deleted timestamp default null,
+    createdAt timestamp default current_timestamp,
+    updatedAt datetime default current_timestamp on update current_timestamp,
+    primary key(id)
+)engine = innodb;
