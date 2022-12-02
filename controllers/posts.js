@@ -10,9 +10,7 @@ const User = require("../models/User");
 exports.createPosts = async function (req, res) {
   try {
     const { content } = req.body;
-
     const email = req.email
-    console.log("Email: ", email)
         
     if (!email || email.length === 0) {
       return res.status(400).send({
@@ -77,7 +75,7 @@ exports.findPosts = async function (req, res) {
       });
     }
 
-    let userDB = await User.findOne({where: {id: `${postDB.user_id}`}})
+    let userDB = await User.findOne({where: {id: `${postDB.id}`}})
     userDB = JSON.parse(JSON.stringify(userDB))
 
 

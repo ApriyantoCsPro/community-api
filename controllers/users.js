@@ -1,7 +1,7 @@
 "use strict";
 
 const User = require("../models/User");
-const Subscriber = require("../models/Subscriber")
+const Subscriber = require("../models/Follow")
 const { Op } = require('Sequelize')
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
@@ -173,7 +173,6 @@ exports.updateUsers = async function (req, res) {
     const { user_id } = req.params;
     const { first_name, last_name, email, password } = req.body;
 
-    const emailDB = await User.findAll({where: {email}}) 
     const user = await User.findOne(
       {where: {
         [Op.and]: [{ id: user_id }, { deleted: null }]
@@ -186,14 +185,33 @@ exports.updateUsers = async function (req, res) {
       });
     }
 
-    if (!emailDB || emailDB.length > 1) {
-      return res.status(400).send({
-        status: false,
-        message: "Email Sudah Ada Dalam Data",
-      });
+    if (email) {
+      const emailDB = await User.findAll({where: {email}}) 
+
+      if (!emailDB || emailDB.length > 1) {
+        return res.status(400).send({
+          status: false,
+          message: "Email Sudah Ada Dalam Data",
+        });
+      }
     }
 
-    await User.update({first_name, last_name, email, password}, {
+    // TODO encrypt password
+    if (password) {
+      // encrypt
+      // save to database
+    }
+
+    const oldData = JSON.parse(JSON.stringify(user))
+    const payload = {first_name, last_name, email, password}
+
+
+    // payload.first_name = req.body['first_name'] || oldData.first_name   /// EXAMPLE for Development
+    Object.keys(payload).map(d => {
+      payload[d] = req.body[d] || oldData[d]
+    })
+
+    await User.update(payload, {
       where: {id: user_id}
     })
 

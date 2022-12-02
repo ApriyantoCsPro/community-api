@@ -8,7 +8,7 @@ const config = require('../config/config')
         autoIncrement: true,
         allowNull: false
       },
-      user_id: {
+      user_email: {
         type: Sequelize.INTEGER,
         allowNull: false
       },

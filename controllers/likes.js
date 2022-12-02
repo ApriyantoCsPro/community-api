@@ -2,7 +2,6 @@
 // const {Like, User, Post, Comment} = require("../models")
 // TODO Next Refactoring
 const Like = require("../models/Like")
-const User = require("../models/User")
 const Post = require("../models/Post")
 const Comment = require("../models/Comment")
 
@@ -10,22 +9,9 @@ const {Op} = require("Sequelize")
 
 exports.createLikes = async function (req, res) {
   try {
-    const { user_id, target_type, target_id } = req.body;
-
+    const { target_type, target_id } = req.body;
+    const email = req.email
     let targetQuery = "";
-
-    const users = await User.findOne({
-      where: {
-        [Op.and]: [{id: user_id}, {deleted: null}]
-      }
-    })
-
-    if (!users || users.length === 0) {
-      return res.status(400).send({
-        status: false,
-        message: "user_id tidak ditemukan.",
-      });
-    }
 
     if (target_type === "post") {
       targetQuery = Post.findOne({where: { [Op.and]: [{id: target_id}, {deleted: null}] }})
@@ -48,18 +34,18 @@ exports.createLikes = async function (req, res) {
 
     const likeiInDB = await Like.findAll({
       where: {
-        [Op.and]: [{user_id}, {target_type}, {target_id}]
+        [Op.and]: [{user_email: email}, {target_type}, {target_id}]
       }
     })
 
     if (likeiInDB.length >= 1) {
       await Like.destroy({
         where: {
-          [Op.and]: [{user_id}, {target_type}, {target_id}]
+          [Op.and]: [{user_email: email}, {target_type}, {target_id}]
         }
       })
     } else {
-      await Like.create({user_id, target_type, target_id})
+      await Like.create({user_email: email, target_type, target_id})
     }
     
     res.send({

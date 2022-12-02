@@ -9,7 +9,7 @@ const { verifyToken } = require("../middleware/VerifyToken")
 router.post("/", verifyToken, postController.createPosts);
 router.get("/", postController.posts);
 router.get("/:post_id", postController.findPosts);
-router.put("/:post_id", postController.updatePosts);
-router.delete("/:user_id", postController.deletePosts);
+router.put("/:post_id", verifyToken, postController.updatePosts);
+router.delete("/:user_id", verifyToken, postController.deletePosts);
 
 module.exports = router

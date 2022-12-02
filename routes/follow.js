@@ -2,10 +2,10 @@
 const express = require("express")
 
 const router = express.Router()
-const likeController = require("../controllers/likes");
+const followController = require("../controllers/follow");
 const { verifyToken } = require("../middleware/VerifyToken")
 
-
-router.post("/", verifyToken, likeController.createLikes);
+router.post("/", verifyToken, followController.createFollow);
 
 module.exports = router
+ 

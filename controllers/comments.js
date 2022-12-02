@@ -2,33 +2,30 @@
 
 const Comment = require("../models/Comment")
 const User = require("../models/User")
+const Post = require("../models/Post")
 const {Op} = require("Sequelize")
 
 //CRUD posting/status content users
 
 exports.createComments = async function (req, res) {
   try {
-    const { user_id, post_id, comment } = req.body;
-    const findUserId = await Comment.findOne({
-      where: {
-        [Op.and]: [{id: user_id}, {deleted: null}]
-      }
-    })
+    const { post_id, comment } = req.body;
+    const email = req.email
 
-    const findPostId = await Comment.findOne({
+    const findPostId = await Post.findOne({
       where: {
         [Op.and]: [{id: post_id}, {deleted: null}]
       }
     })
 
-    if (!findUserId || !findPostId || findUserId.length === 0 || findPostId.length === 0) {
+    if (!findPostId || findPostId.length === 0) {
       return res.status(400).send({
         status: false,
-        message: "user_id atau post_id tidak ditemukan.",
+        message: "post_id tidak ditemukan.",
       });
     }
 
-    await Comment.create({user_id, post_id, comment})
+    await Comment.create({user_email: email, post_id, comment})
 
     res.send({
       status: true,

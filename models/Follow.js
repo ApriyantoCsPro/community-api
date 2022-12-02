@@ -1,21 +1,21 @@
 const Sequelize = require('sequelize')
 const config = require('../config/config')
 
-  const Subscriber = config.define('subscribers', {
+  const Follow = config.define('follows', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
       },
-      follower_id: {
-        type: Sequelize.INTEGER,
+      user_email: {
+        type: Sequelize.STRING,
         allowNull: false
       },
-      followee_id: {
+      target_user_id: {
         type: Sequelize.INTEGER,
         allowNull: false
-      },
+      }
     },
     {
       timestamps: false
@@ -25,4 +25,4 @@ const config = require('../config/config')
     },
   );
 
-module.exports = Subscriber
+module.exports = Follow
