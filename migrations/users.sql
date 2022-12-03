@@ -1,0 +1,11 @@
+create table users(
+    -> id int not null auto_increment,
+    -> user_id int not null,
+    -> first_name varchar(50),
+    -> last_name varchar(50),
+    -> email varchar(50) not null,
+    -> password varchar(50) not null,
+    -> role varchar(50) not null,
+    -> token varchar(50) not null,
+    -> primary key(id)
+    -> )engine = innodb;
