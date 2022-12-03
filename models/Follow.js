@@ -8,11 +8,11 @@ const config = require('../config/config')
         autoIncrement: true,
         allowNull: false
       },
-      user_email: {
-        type: Sequelize.STRING,
+      follower_id: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      target_user_id: {
+      followee_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       }

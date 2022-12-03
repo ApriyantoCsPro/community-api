@@ -10,8 +10,9 @@ const {Op} = require("Sequelize")
 exports.createLikes = async function (req, res) {
   try {
     const { target_type, target_id } = req.body;
-    const email = req.email
     let targetQuery = "";
+    console.log("REQ", req.email)
+
 
     if (target_type === "post") {
       targetQuery = Post.findOne({where: { [Op.and]: [{id: target_id}, {deleted: null}] }})
@@ -34,18 +35,19 @@ exports.createLikes = async function (req, res) {
 
     const likeiInDB = await Like.findAll({
       where: {
-        [Op.and]: [{user_email: email}, {target_type}, {target_id}]
+        [Op.and]: [{user_id: req.id}, {target_type}, {target_id}]
       }
     })
+
 
     if (likeiInDB.length >= 1) {
       await Like.destroy({
         where: {
-          [Op.and]: [{user_email: email}, {target_type}, {target_id}]
+          [Op.and]: [{user_id: req.id}, {target_type}, {target_id}]
         }
       })
     } else {
-      await Like.create({user_email: email, target_type, target_id})
+      await Like.create({user_id: req.id, target_type, target_id})
     }
     
     res.send({
@@ -53,7 +55,7 @@ exports.createLikes = async function (req, res) {
       message: "Berhasil mengupdate like",
     });
   } catch (error) {
-    console.log("Program error", error.message);
+    console.log("Program error", error);
     return res.status(500).send({
       status: false,
       message: error.sqlMessage || "Ada kesalahan server",

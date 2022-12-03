@@ -9,7 +9,6 @@ const {Op} = require("Sequelize")
 exports.createReactions = async function (req, res) {
   try {
     const { target_type, target_id, reaction_type } = req.body;
-    const user_email = req.email
 
     if (
         reaction_type !== "funny" &&
@@ -46,18 +45,18 @@ exports.createReactions = async function (req, res) {
 
     const reactInDB = await Reaction.findAll({
       where: {
-        [Op.and]: [{user_email}, {target_type}, {target_id}]
+        [Op.and]: [{user_id: req.id}, {target_type}, {target_id}]
       }
     })
 
     if (reactInDB.length >= 1) {
       await Reaction.destroy({
         where: {
-          [Op.and]: [{user_email}, {target_type}, {target_id}]
+          [Op.and]: [{user_id: req.id}, {target_type}, {target_id}]
         }
       })
     } else {
-      await Reaction.create({user_email, target_type, target_id, reaction_type})
+      await Reaction.create({user_id: req.id, target_type, target_id, reaction_type})
     }
 
     res.send({

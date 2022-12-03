@@ -8,17 +8,13 @@ const config = require('../config/config')
         autoIncrement: true,
         allowNull: false
       },
-      user_email: {
-        type: Sequelize.INTEGER,
+      user_id: {
+        type: Sequelize.INTEGER, 
         allowNull: false
       },
       content: {
         type: Sequelize.STRING,
         allowNull: false
-      },
-      deleted: {
-        type: Sequelize.DATE,
-        allowNull: true
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -27,6 +23,10 @@ const config = require('../config/config')
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false
+      },
+      deleted: {
+        type: Sequelize.DATE,
+        allowNull: true
       },
     },
     {

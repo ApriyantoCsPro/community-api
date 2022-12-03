@@ -3,31 +3,43 @@
 const Follow = require("../models/Follow")
 const User = require("../models/User")
 const {Op} = require("Sequelize");
-
+ 
 exports.createFollow = async function (req, res) {
   try {
-    const { target_user_id } = req.body;
-    const user_email = req.email
-
+    const { followee_id } = req.body;
     const user = await User.findOne({
       where: {
-        [Op.and]: [{id: target_user_id}, {deleted: null}]
+        [Op.and]: [{id: followee_id}, {deleted: null}]
       }
     })
 
     if (!user || user.length === 0) {
       return res.status(400).send({
         status: false,
-        message: `${target_user_id} tidak ditemukan!`,
+        message: `${followee_id} tidak ditemukan!`,
       });
     }
 
-    const follow = await Follow.findAll({where: {id: target_user_id}})
+    if(user.id === req.id) {
+      return res.status(400).send({
+        status: false,
+        message: "Aksi tidak dapat dilakukan!",
+      });
+    }
+
+    const follow = await Follow.findAll({
+      where: {
+        [Op.and]: [{follower_id: req.id}, {followee_id} ]
+      }
+    })
 
     if (follow.length >= 1) {
-      await Follow.destroy({where: {id: target_user_id}})
+      await Follow.destroy({
+        where: {
+        [Op.and]: [{follower_id: req.id}, {followee_id}]
+      }})
     } else {
-      await Follow.create({user_email, target_user_id})
+      await Follow.create({follower_id: req.id, followee_id})
     }
 
     res.send({

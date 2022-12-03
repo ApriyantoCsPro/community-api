@@ -10,16 +10,8 @@ const User = require("../models/User");
 exports.createPosts = async function (req, res) {
   try {
     const { content } = req.body;
-    const email = req.email
-        
-    if (!email || email.length === 0) {
-      return res.status(400).send({
-        status: false,
-        message: "user tidak ditemukan.",
-      });
-    }
-
-    await Post.create({user_email: email, content})
+   
+    await Post.create({user_id: req.id, content})
 
     res.send({
       status: true,
@@ -132,8 +124,8 @@ exports.updatePosts = async function (req, res) {
 
 exports.deletePosts = async function (req, res) {
   try {
-    const { user_id } = req.params;
-    await Post.update({deleted: `${new Date}` }, { where: {id: user_id}})
+    const { post_id } = req.params;
+    await Post.update({deleted: `${new Date}` }, { where: {id: post_id}})
 
     res.send({
       status: true,

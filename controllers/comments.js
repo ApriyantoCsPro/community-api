@@ -5,12 +5,11 @@ const User = require("../models/User")
 const Post = require("../models/Post")
 const {Op} = require("Sequelize")
 
-//CRUD posting/status content users
+//CRUD posting/status content users 
 
 exports.createComments = async function (req, res) {
   try {
     const { post_id, comment } = req.body;
-    const email = req.email
 
     const findPostId = await Post.findOne({
       where: {
@@ -25,7 +24,7 @@ exports.createComments = async function (req, res) {
       });
     }
 
-    await Comment.create({user_email: email, post_id, comment})
+    await Comment.create({user_id: req.id, post_id, comment})
 
     res.send({
       status: true,
